@@ -1,0 +1,42 @@
+@startuml nn
+left to right direction
+skinparam packageStyle rectangle
+
+actor "משתמש שולח" as Sender
+actor "משתמש נמען" as Receiver
+
+rectangle "מערכת להעברת קבצים מאובטחת (Web)" {
+
+  usecase "הרשמה" as UC_Register
+  usecase "התחברות" as UC_Login
+
+  usecase "חיפוש/הזנת משתמש יעד" as UC_Target
+  usecase "העלאת קובץ" as UC_Upload
+  usecase "שליחת קובץ מאובטח" as UC_Send
+  usecase "הצפנת קובץ (אוטומטי)" as UC_Encrypt
+  usecase "קבלת קובץ" as UC_Receive
+  usecase "פענוח קובץ (אוטומטי)" as UC_Decrypt
+  usecase "הורדת קובץ למחשב" as UC_Download
+
+  usecase "צפייה בסטטוס העברה" as UC_Status
+}
+
+Sender --> UC_Register
+Sender --> UC_Login
+Sender --> UC_Target
+Sender --> UC_Upload
+Sender --> UC_Send
+Sender --> UC_Status
+
+Receiver --> UC_Login
+Receiver --> UC_Receive
+Receiver --> UC_Download
+Receiver --> UC_Status
+
+' UC_Send .> UC_Encrypt : <<include>>
+' UC_Receive .> UC_Decrypt : <<include>>
+' UC_Send .> UC_Target : <<include>>
+' UC_Send .> UC_Upload : <<include>>
+' UC_Receive .> UC_Download : <<include>>
+
+@enduml

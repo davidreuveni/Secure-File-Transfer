@@ -1,0 +1,39 @@
+@startuml d
+left to right direction
+actor "Guest" as guest
+rectangle Secure-File-Transfer {
+  usecase "Eat Food" as UC1
+  usecase "Pay for Food" as UC2
+  usecase "Drink" as UC3
+  usecase "Fuck" as UC4
+  usecase "Shit" as UC5
+  usecase "oil" as UC6
+  usecase "oil" as UC7
+  usecase "oil" as UC8
+  usecase "oil" as UC9
+  usecase "oil" as UC10
+
+}
+guest --> UC1
+guest --> UC2
+guest --> UC3
+guest --> UC4
+guest --> UC5
+guest --> UC6
+guest --> UC7
+guest --> UC8
+guest --> UC9
+guest --> UC10
+guest --> UC1
+guest --> UC2
+guest --> UC3
+guest --> UC4
+guest --> UC5
+guest --> UC6
+guest --> UC7
+guest --> UC8
+guest --> UC9
+guest --> UC10
+
+
+@enduml

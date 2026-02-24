@@ -1,0 +1,24 @@
+@startuml ד
+title העברת קובץ מאובטחת (תרחיש בסיסי)
+
+actor "שולח" as Sender
+actor "נמען" as Receiver
+
+participant "ממשק Web (שולח)" as UI_S
+participant "מנוע הצפנה (שולח)" as ENC
+participant "ערוץ העברה ישיר P2P" as P2P
+participant "מנוע פענוח (נמען)" as DEC
+participant "ממשק Web (נמען)" as UI_R
+
+Sender -> UI_S: בחירת נמען + העלאת קובץ
+UI_S -> ENC: הצפנת הקובץ
+ENC --> UI_S: קובץ מוצפן
+
+UI_S -> P2P: שליחת הקובץ המוצפן
+P2P -> UI_R: העברת הקובץ המוצפן
+
+UI_R -> DEC: פענוח הקובץ
+DEC --> UI_R: קובץ מפוענח
+
+Receiver -> UI_R: הורדת הקובץ למחשב
+@enduml

@@ -1,0 +1,66 @@
+@startuml כ
+title ארכיטקטורת 3 שכבות (Three-Tier) – מותאם לפרויקט (Vaadin + Spring Boot + MongoDB)
+
+left to right direction
+skinparam shadowing true
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam roundcorner 18
+skinparam ArrowThickness 2
+
+actor "משתמש" as User
+
+package "Frontend – Presentation Layer\n(Vaadin Web UI)" #E8F4FF {
+  component "Vaadin Views\n(מסכים)" as VIEWS
+  component "Forms & Input\n(טפסים / העלאות)" as FORMS
+  component "Notifications\n(התראות)" as NOTIF
+
+  note bottom of VIEWS
+  אחריות: חוויית משתמש והצגה בלבד.
+  אין לוגיקה עסקית ואין החלטות אבטחה.
+  end note
+}
+
+package "Backend – Business Logic Layer\n(Spring Boot)" #E8FFE8 {
+  component "Controllers\nREST API / WebSocket" as CTRL
+  component "Services\n(ליבת התהליכים)" as SRV
+  component "AuthService\nאימות זהות" as AUTH
+  component "PermissionService\nניהול הרשאות" as PERM
+  component "UserService\nניהול משתמשים" as USR
+  component "TransferService\nבקשות + מצבי העברה" as TR
+  component "KeyService\nיצירה/שימוש במפתחות\nוהכנת מידע לפני פעולה" as KEY
+  component "Data Models\nDTO / Models" as MODELS
+  component "Repositories\nSpring Data MongoDB" as REPO
+
+  CTRL --> SRV
+  SRV --> AUTH
+  SRV --> PERM
+  SRV --> USR
+  SRV --> TR
+  SRV --> KEY
+  CTRL --> MODELS
+  SRV --> MODELS
+  REPO --> MODELS
+
+  note bottom of SRV
+  אחריות: ריכוז הלוגיקה העסקית והאכיפה האחידה
+  (אבטחה/התנהגות מערכתית) כדי שלא יתפזר בצד הלקוח.
+  end note
+}
+
+package "DB – Data Layer\n(MongoDB)" #FFE9D6 {
+  database "MongoDB\nCollections:\nUsers • Transfers • Metadata • Status" as DB
+  note bottom of DB
+  אחריות: שמירת נתונים, מטא־דאטה וסטטוסים.
+  end note
+}
+
+' זרימות כלליות בין שכבות
+User --> VIEWS : שימוש במערכת
+VIEWS --> CTRL : HTTPS\nREST / WebSocket
+CTRL --> VIEWS : תשובה + סטטוס\n(JSON/DTO)
+
+REPO --> DB : קריאה/כתיבה\n(Spring Data MongoDB)
+DB --> REPO : נתונים / אישור
+
+@enduml

@@ -1,0 +1,11 @@
+@startuml name
+Animel <|-- Dog
+Animel *-- Date
+
+Flyabble <|.. Dog
+
+interface Flyabble
+Dog : String[] breed
+Dog : size()
+
+@enduml

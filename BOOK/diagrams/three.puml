@@ -1,0 +1,42 @@
+@startuml g
+title ארכיטקטורת מערכת - מודל שלוש שכבות (Vaadin + Spring Boot + MongoDB)
+left to right direction
+skinparam packageStyle rectangle
+
+package "Presentation Layer\nשכבת ממשק משתמש (Vaadin)" as PL {
+  [Vaadin UI\nScreens / Forms / Notifications] as UI
+}
+
+package "Communication Layer\nשכבת תקשורת (API)" as CL {
+  [REST API Controllers\n/Endpoints] as API
+}
+
+package "Business Logic Layer\nשכבת לוגיקה עסקית (Spring Boot)" as BL {
+  [Auth & Permissions\nIdentity Verification] as AUTH
+  [TransferService\nRequest / Status / Flow] as TS
+  [Crypto Module\nAES Encrypt/Decrypt] as CRYPTO
+  [User Management] as UM
+}
+
+database "MongoDB\nUsers + Metadata\n(No file storage)" as DB
+
+' זרימת הבקשה
+UI --> API : HTTPS (REST/JSON)\nבקשות משתמש
+API --> BL : קריאה ללוגיקה עסקית
+BL --> DB : קריאה/עדכון מטה-דטה\nמשתמשים/סטטוס
+DB --> BL : תוצאות
+BL --> API : תגובה/סטטוס
+API --> UI : Response (JSON)
+
+' קשרים פנימיים בלוגיקה
+API --> AUTH
+API --> TS
+TS --> CRYPTO
+TS --> UM
+
+note right of DB
+הקבצים עצמם אינם נשמרים ב-DB.
+נשמרים רק נתוני משתמשים ומטה-דטה.
+end note
+
+@enduml
