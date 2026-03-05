@@ -42,7 +42,6 @@ public class SignInView extends VerticalLayout {
 
     public void addUserToDB(String un, String pw, LocalDate localDate){
         User user = new User(un,pw);
-        user.setBirthDate(localDate);
         
         boolean res = userService.addUserToDB(user);
 

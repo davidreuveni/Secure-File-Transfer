@@ -22,11 +22,11 @@ public class AppNavBarLayout extends AppLayout
         
         
         navbarPanel.add(new H2(" 🔒 Secure File Transfer"));
-        navbarPanel.add(new RouterLink("Home Page", HomeView.class));
-        navbarPanel.add(" | ");
         navbarPanel.add(new RouterLink("Login Page", LoginView.class));
         navbarPanel.add(" | ");   
         navbarPanel.add(new RouterLink("Upload Encrypt", UploadView.class));
+        navbarPanel.add(" | ");
+        navbarPanel.add(new RouterLink("Users", UserView.class));
         navbarPanel.add(" | ");
         navbarPanel.add(new Anchor("/book","Book page"));
         navbarPanel.add(" | ");

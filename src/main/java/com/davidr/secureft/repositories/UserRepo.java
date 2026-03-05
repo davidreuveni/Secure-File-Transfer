@@ -7,5 +7,9 @@ import com.davidr.secureft.datamodels.User;
 
 @Repository
 public interface UserRepo extends MongoRepository<User, String> {
-        
+    User findByUsername(String username);
+
+    boolean existsByUsername(String username);
+
+    void deleteByUsername(String username);
 }
