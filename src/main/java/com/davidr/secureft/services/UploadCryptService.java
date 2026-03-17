@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.springframework.stereotype.Service;
 
+import com.davidr.secureft.interfaces.CryptListener;
 import com.davidr.secureft.services.AES.AesCipher;
 
 @Service
@@ -15,7 +16,7 @@ public class UploadCryptService {
 
     private static final int BUF_SIZE = 64 * 1024;
 
-    public void cryptStream(boolean encrypt, boolean hmac, InputStream input, OutputStream output, String keyText) throws Exception {
+    public void cryptStream(boolean encrypt, boolean hmac, InputStream input, OutputStream output, String keyText, CryptListener listener) throws Exception {
         if (input == null) {
             throw new IllegalArgumentException("input is null");
         }
@@ -30,7 +31,17 @@ public class UploadCryptService {
         BufferedOutputStream out = new BufferedOutputStream(output, BUF_SIZE);
        
         byte[] key = keyText.getBytes(StandardCharsets.UTF_8);
-        AesCipher.cipherStream(encrypt, hmac, in, out, key);
+        listener.start();
+        Thread cipherThread = new Thread(() -> {
+          try {
+            AesCipher.cipherStream(encrypt, hmac, in, out, key);
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }  
+        });
+        cipherThread.start();
+        cipherThread.join();
+        listener.end();
         out.flush();        
     }
 

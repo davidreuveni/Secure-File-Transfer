@@ -6,14 +6,17 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import com.davidr.secureft.interfaces.CryptListener;
 import com.davidr.secureft.services.UploadCryptService;
 import com.vaadin.flow.component.DetachEvent;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.upload.Upload;
@@ -24,16 +27,20 @@ import com.vaadin.flow.server.StreamResource;
 
 @Route(value = "upload", layout = AppNavBarLayout.class)
 @PageTitle("Encrypt and Download")
-public class UploadView extends VerticalLayout {
+public class UploadView extends VerticalLayout implements CryptListener{
 
     private final Paragraph status = new Paragraph("Upload a file and enter an encryption key.");
     private Anchor downloadLink = new Anchor();
     private Path encryptedTempFile;
     private boolean mode, hmac;
+    private UI ui;
+
+    private final ProgressBar bar = new ProgressBar();
 
     public UploadView(UploadCryptService uploadCryptService) {
         setWidthFull();
         setMaxWidth("720px");
+        ui = UI.getCurrent();
 
         H2 title = new H2("Encrypt and Download");
 
@@ -62,16 +69,16 @@ public class UploadView extends VerticalLayout {
                 return;
             }
 
-            if(radioGroup.getValue() == "Encrypt"){mode = true;}
+            if("Encrypt".equals(radioGroup.getValue())){mode = true;}
             else {mode = false;}
-            if(radioGroup.getValue() == "Regular"){hmac = false;}
+            if("Regular".equals(radioGroup2.getValue())){hmac = false;}
             else {hmac = true;}
             try (InputStream in = buffer.getInputStream()) {
                 deleteEncryptedTempFile();
                 encryptedTempFile = Files.createTempFile("secureft-", ".enc");
 
                 try (OutputStream out = Files.newOutputStream(encryptedTempFile)) {
-                    uploadCryptService.cryptStream(mode, hmac, in, out, keyField.getValue());
+                    uploadCryptService.cryptStream(mode, hmac, in, out, keyField.getValue(), this);
                 }
 
                 if (downloadLink != null && getChildren().anyMatch(component -> component == downloadLink)) {
@@ -79,7 +86,6 @@ public class UploadView extends VerticalLayout {
                 }
 
 
-                System.out.println(mode);
                 String encryptedName = uploadCryptService.getFileName(mode, e.getFileName());
                 StreamResource resource = new StreamResource(
                         encryptedName,
@@ -115,8 +121,10 @@ public class UploadView extends VerticalLayout {
             }
             deleteEncryptedTempFile();
         });
+        bar.setIndeterminate(true);
+        bar.setVisible(false);
 
-        add(title, radioGroup, radioGroup2, keyField, upload, clear, status);
+        add(title, radioGroup, radioGroup2, keyField, bar, upload, clear, status);
     }
 
     @Override
@@ -134,6 +142,29 @@ public class UploadView extends VerticalLayout {
         } catch (IOException ignored) {
         }
         encryptedTempFile = null;
+    }
+
+    @Override
+    public void start() {
+        ui.access(() -> {
+            bar.setVisible(true);   
+            status.setText("Processing started...");
+        });
+    }
+
+    @Override
+    public void progress(int percent) {
+        ui.access(() -> {
+            status.setText("Processing... " + percent + "%");
+        });
+    }
+
+    @Override
+    public void end() {
+        ui.access(() -> {
+            status.setText("Processing complete.");
+            bar.setVisible(false);
+        });
     }
 
 }
