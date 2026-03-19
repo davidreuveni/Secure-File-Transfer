@@ -2,21 +2,26 @@ package com.davidr.secureft.services;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 import org.springframework.stereotype.Service;
 
 import com.davidr.secureft.interfaces.CryptListener;
 import com.davidr.secureft.services.AES.AesCipher;
+import com.davidr.secureft.utils.utils;
 
 @Service
 public class UploadCryptService {
 
     private static final int BUF_SIZE = 64 * 1024;
 
-    public void cryptStream(boolean encrypt, boolean hmac, InputStream input, OutputStream output, String keyText, CryptListener listener) throws Exception {
+    public void cryptStream(boolean encrypt, boolean hmac, InputStream input, OutputStream output, String keyText, CryptListener listener) throws IOException {
+        utils.verifyMelacha();
         if (input == null) {
             throw new IllegalArgumentException("input is null");
         }
@@ -29,20 +34,23 @@ public class UploadCryptService {
 
         BufferedInputStream in = new BufferedInputStream(input, BUF_SIZE);
         BufferedOutputStream out = new BufferedOutputStream(output, BUF_SIZE);
-       
+
         byte[] key = keyText.getBytes(StandardCharsets.UTF_8);
         listener.start();
-        Thread cipherThread = new Thread(() -> {
-          try {
+
+        try {
             AesCipher.cipherStream(encrypt, hmac, in, out, key);
-          } catch (Exception e) {
-            throw new RuntimeException(e);
-          }  
-        });
-        cipherThread.start();
-        cipherThread.join();
-        listener.end();
-        out.flush();        
+            out.flush();
+            listener.end();
+        } catch (SecurityException | IllegalArgumentException e) {
+            throw e;
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new IllegalStateException("Required cryptography support is unavailable", e);
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IOException("Unexpected processing failure", e);
+        }
     }
 
     public String getFileName(boolean mode, String originalFileName){

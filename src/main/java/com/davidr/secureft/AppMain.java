@@ -14,6 +14,6 @@ public class AppMain implements AppShellConfigurator {
 
     public static void main(String[] args) {
         SpringApplication.run(AppMain.class, args);
-        System.out.println(LocalTime.now()+"\n==>Test1Application running");
+        System.out.println(LocalTime.now()+"\n==>Test1Application running on: http://localhost:8080");
     }
 }

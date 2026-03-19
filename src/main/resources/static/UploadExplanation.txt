@@ -1,0 +1,18 @@
+WELLCOME TO SecureFT!!!
+
+SecureFT makes file protection simple.
+
+Choose whether you want to encrypt a file for safe storage or decrypt a file that was already protected here. Enter the key you want to use, select the mode that matches what you need, and upload your file. After processing is complete, a download link will appear with the new file ready for you.
+
+If you are encrypting:
+Use a key you will remember exactly. The same key will be needed later to open the file again. You can choose Regular mode for standard encryption, or HMAC-SHA256 if you also want an integrity check that helps detect changes to the file.
+
+If you are decrypting:
+Make sure you use the same key and the same integrity mode that were used when the file was encrypted. If they do not match, processing will fail.
+
+Tips for smooth use:
+- Keep your key somewhere safe.
+- HMAC-SHA256 is the better choice when you want tamper detection.
+- Use Clear to reset the form and start over.
+
+When the process finishes, download the result right away so you can save it where you want.
