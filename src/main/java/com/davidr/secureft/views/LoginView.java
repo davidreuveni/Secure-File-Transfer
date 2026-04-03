@@ -6,7 +6,10 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.VaadinService;
+import com.vaadin.flow.server.VaadinServletResponse;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @Route(value="/login", layout=AppNavBarLayout.class)
 public class LoginView extends VerticalLayout {
@@ -18,10 +21,10 @@ public class LoginView extends VerticalLayout {
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
 
-        Dialog dialog = new Dialog();
-        dialog.add("I DONT CARE!\n");
-        Button close = new Button("OK", e -> dialog.close());
-        dialog.add(close);       
+        Dialog forgotPass = new Dialog();
+        forgotPass.add("I DONT CARE!\n");
+        Button close = new Button("OK", e -> forgotPass.close());
+        forgotPass.add(close);       
         
         com.vaadin.flow.component.html.Paragraph info = new com.vaadin.flow.component.html.Paragraph();
         info.add(new com.vaadin.flow.component.html.Span("Don't have an account? "));
@@ -31,23 +34,27 @@ public class LoginView extends VerticalLayout {
             String username = e.getUsername();
             String password = e.getPassword();
 
-            if (userService.checkLogin(username, password)) {
+            HttpServletResponse httpResponse = null;
+            if (VaadinService.getCurrentResponse() instanceof VaadinServletResponse vsr) {
+                httpResponse = vsr.getHttpServletResponse();
+            }
+
+            boolean success = false;
+            if (httpResponse != null) {
+                success = userService.checkLogin(username, password, httpResponse);
+            }
+
+            if (success) {
                 login.getUI().ifPresent(ui -> ui.navigate("upload"));
             } else {
                 login.getUI().ifPresent(ui -> ui.navigate("wrong"));
             }
         });
         login.addForgotPasswordListener(e -> {
-            dialog.open();
+            forgotPass.open();
         });
 
         add(login, info);
-    }
-
-    private void checkCoockie(){
-        if(VaadinSession.getCurrent().getSession().getId()!=null){
-            
-        }
     }
 }
 

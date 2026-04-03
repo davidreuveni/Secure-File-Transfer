@@ -1,0 +1,10 @@
+/* Global Vaadin / Lumo styling */
+:root {
+    /* Background of the whole app */
+    --lumo-body-background-color: #1e1e1e;
+    --lumo-base-color: #1e1e1e;
+
+    /* Text colors so things stay readable */
+    --lumo-body-text-color: #f5f5f5;
+    --lumo-header-text-color: #ffffff;
+}

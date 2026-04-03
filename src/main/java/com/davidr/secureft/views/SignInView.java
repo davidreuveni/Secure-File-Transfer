@@ -2,13 +2,10 @@ package com.davidr.secureft.views;
 
 import com.vaadin.flow.component.notification.Notification;
 
-import java.time.LocalDate;
-
 import com.davidr.secureft.datamodels.User;
 import com.davidr.secureft.services.UserService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -23,25 +20,22 @@ public class SignInView extends VerticalLayout {
 
         this.userService = userService;
 
-        User newUser = new User();
-
         TextField username = new TextField("Username");
         PasswordField password = new PasswordField("Password");
-        DatePicker date = new DatePicker("Date Of Birth");
-        
+        TextField email = new TextField("E-Mail");
 
-        Button DBAdder = new Button("add user to db", e -> addUserToDB(username.getValue(), password.getValue(), date.getValue()));
+        Button DBAdder = new Button("add user to db", e -> addUserToDB(username.getValue(), password.getValue(), email.getValue()));
 
         // Center layout
         setSizeFull();
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
 
-        add(username, password, date, DBAdder);
+        add(username, password, email, DBAdder);
     }
 
-    public void addUserToDB(String un, String pw, LocalDate localDate){
-        User user = new User(un,pw);
+    public void addUserToDB(String un, String pw, String email){
+        User user = userService.newUser(un,pw,email);
         
         boolean res = userService.addUserToDB(user);
 

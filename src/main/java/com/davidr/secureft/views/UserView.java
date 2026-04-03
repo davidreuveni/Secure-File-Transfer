@@ -1,5 +1,7 @@
 package com.davidr.secureft.views;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.davidr.secureft.datamodels.User;
@@ -8,6 +10,7 @@ import org.springframework.dao.DataAccessException;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -17,7 +20,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@Route(value = "users", layout = AppNavBarLayout.class)
+@Route(value = "users/viewUsers", layout = AppNavBarLayout.class)
 @PageTitle("Users")
 public class UserView extends VerticalLayout {
 
@@ -44,9 +47,44 @@ public class UserView extends VerticalLayout {
         HorizontalLayout formRow = new HorizontalLayout(usernameField, passwordField, addUserButton, refreshButton);
         formRow.setAlignItems(Alignment.END);
 
+        userGrid.addComponentColumn(user -> {
+            String avatarUrl = user.getAvatarURL();
+
+            Image avatar = new Image();
+            avatar.setAlt("Avatar");
+            avatar.setWidth("40px");
+            avatar.setHeight("40px");
+            avatar.getStyle().set("border-radius", "50%");
+            avatar.getStyle().set("object-fit", "cover");
+
+            if (avatarUrl == null || avatarUrl.isBlank()) {
+                avatar.setSrc("images/default-avatar.png");
+            } else {
+                avatar.setSrc(avatarUrl);
+            }
+
+            return avatar;
+        })
+                .setHeader("Avatar")
+                .setAutoWidth(true);
+
         userGrid.addColumn(User::getUsername).setHeader("Username").setAutoWidth(true);
-        userGrid.addColumn(user -> "*".repeat(user.getPassword() == null ? 0 : user.getPassword().length()))
-                .setHeader("Password")
+        userGrid.addColumn(user -> user.getHashedPassword())
+                .setHeader("Hashed Password")
+                .setAutoWidth(true);
+        userGrid.addColumn(user -> user.getEmail())
+                .setHeader("Email")
+                .setAutoWidth(true);
+        userGrid.addColumn(user -> user.getRole())
+                .setHeader("role")
+                .setAutoWidth(true);
+        userGrid.addColumn(user -> user.getCreatedAt().atZone(ZoneId.of("Asia/Jerusalem"))
+                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")))
+                .setHeader("Created at")
+                .setAutoWidth(true);
+        userGrid.addColumn(user -> user.getLastLoginAt().atZone(ZoneId.of("Asia/Jerusalem"))
+                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")))
+                .setHeader("Last Login At")
                 .setAutoWidth(true);
         userGrid.setSizeFull();
 
@@ -66,7 +104,7 @@ public class UserView extends VerticalLayout {
             return;
         }
 
-        User newUser = new User(username, password);
+        User newUser = userService.newUser(username, password, "test@gmail.com");
         boolean created;
         try {
             created = userService.addUserToDB(newUser);

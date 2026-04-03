@@ -16,7 +16,6 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Pre;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
@@ -30,6 +29,7 @@ import com.vaadin.flow.server.StreamResource;
 
 @Route(value = "", layout = AppNavBarLayout.class)
 @PageTitle("Encrypt and Download")
+@SuppressWarnings("removal")
 public class UploadView extends HorizontalLayout implements CryptListener {
 
     private static final String DEFAULT_STATUS = "Enter an encryption key and upload a file.";
