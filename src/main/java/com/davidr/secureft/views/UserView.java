@@ -1,5 +1,7 @@
 package com.davidr.secureft.views;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.davidr.secureft.datamodels.User;
@@ -45,8 +47,20 @@ public class UserView extends VerticalLayout {
         formRow.setAlignItems(Alignment.END);
 
         userGrid.addColumn(User::getUsername).setHeader("Username").setAutoWidth(true);
-        userGrid.addColumn(user -> "*".repeat(user.getPassword() == null ? 0 : user.getPassword().length()))
-                .setHeader("Password")
+        userGrid.addColumn(user -> user.getHashedPassword())
+                .setHeader("Hashed Password")
+                .setAutoWidth(true);
+        userGrid.addColumn(user -> user.getEmail())
+                .setHeader("Email")
+                .setAutoWidth(true);
+        userGrid.addColumn(user -> user.getRole())
+                .setHeader("role")
+                .setAutoWidth(true);
+        userGrid.addColumn(user -> user.getCreatedAt().atZone(ZoneId.of("Asia/Jerusalem")).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")))
+                .setHeader("Created at")
+                .setAutoWidth(true);
+        userGrid.addColumn(user -> user.getLastLoginAt().atZone(ZoneId.of("Asia/Jerusalem")).format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")))
+                .setHeader("Last Login At")
                 .setAutoWidth(true);
         userGrid.setSizeFull();
 
@@ -66,7 +80,7 @@ public class UserView extends VerticalLayout {
             return;
         }
 
-        User newUser = new User(username, password);
+        User newUser = userService.newUser(username, password, "test@gmail.com");
         boolean created;
         try {
             created = userService.addUserToDB(newUser);
