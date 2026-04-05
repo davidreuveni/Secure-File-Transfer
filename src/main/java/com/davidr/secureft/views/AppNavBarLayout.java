@@ -18,7 +18,7 @@ public class AppNavBarLayout extends AppLayout {
 
     public AppNavBarLayout(AuthService authService) {
         // H1 title = new H1("Spring-Demo App");
-
+        
         HorizontalLayout navbarPanel = new HorizontalLayout(Alignment.BASELINE);
         navbarPanel.setWidthFull();
         navbarPanel.getStyle().setBackgroundColor("grey");
