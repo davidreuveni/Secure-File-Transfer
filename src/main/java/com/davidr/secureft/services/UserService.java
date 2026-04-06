@@ -82,6 +82,8 @@ public class UserService {
         }
 
         if (passwordEncoder().matches(rawPassword, user.getHashedPassword())) {
+            user.setLastLoginAt(Instant.now());
+            userRepo.save(user);
             authService.logUserIn(response, user);
             return true;
         }

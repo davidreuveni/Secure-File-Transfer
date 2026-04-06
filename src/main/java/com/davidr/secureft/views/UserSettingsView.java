@@ -19,9 +19,6 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.VaadinService;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 @Route(value = "users/settings", layout = AppNavBarLayout.class)
 @PageTitle("Edit User Settings")
@@ -149,38 +146,34 @@ public class UserSettingsView extends VerticalLayout implements BeforeEnterObser
     }
 
     private void checkPassword(){
-        return;
-        // if(!(userService.isValidPassword(newPass.getValue())||userService.isValidPassword(againNewPass.getValue()))){
-        //     status.setVisible(true);
-        //     newPass.setInvalid(true);
-        //     againNewPass.setInvalid(true);
-        //     status.setText("Password must:\n- be at least 8 characters\n- contain uppercase\n- contain lowercase\n- contain a digit\n- contain a symbol");
-        // }else{
-        //     if(!(newPass.getValue().equals(againNewPass.getValue()))){
-        //         status.setVisible(true);
-        //         newPass.setInvalid(true);
-        //         againNewPass.setInvalid(true);
-        //         status.setText("Passwords must match!");
-        //     }else{
-        //         newPass.setInvalid(false);
-        //         againNewPass.setInvalid(false);
-        //         status.setVisible(false);
-        //     }
-        // }
-        // if(newPass.isEmpty() && againNewPass.isEmpty()){
-        //     newPass.setInvalid(false);
-        //     againNewPass.setInvalid(false);
-        //     status.setVisible(false);
-        // }
+        if(!(userService.isValidPassword(newPass.getValue())||userService.isValidPassword(againNewPass.getValue()))){
+            status.setVisible(true);
+            newPass.setInvalid(true);
+            againNewPass.setInvalid(true);
+            status.setText("Password must:\n- be at least 8 characters\n- contain uppercase\n- contain lowercase\n- contain a digit\n- contain a symbol");
+        }else{
+            if(!(newPass.getValue().equals(againNewPass.getValue()))){
+                status.setVisible(true);
+                newPass.setInvalid(true);
+                againNewPass.setInvalid(true);
+                status.setText("Passwords must match!");
+            }else{
+                newPass.setInvalid(false);
+                againNewPass.setInvalid(false);
+                status.setVisible(false);
+            }
+        }
+        if(newPass.isEmpty() && againNewPass.isEmpty()){
+            newPass.setInvalid(false);
+            againNewPass.setInvalid(false);
+            status.setVisible(false);
+        }
     }
 
     @Override
     public void beforeEnter(BeforeEnterEvent e) {
-        HttpServletRequest request = (HttpServletRequest) VaadinService.getCurrentRequest();
-        loggedUser = authService.getLoggedUser(request);
-
+        loggedUser = ViewAuthSupport.requireLoggedUser(authService, e);
         if (loggedUser == null) {
-            e.rerouteTo(LoginView.class);
             return;
         }
 

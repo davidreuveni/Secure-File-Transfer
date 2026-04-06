@@ -1,10 +1,253 @@
-/* Global Vaadin / Lumo styling */
-:root {
-    /* Background of the whole app */
-    --lumo-body-background-color: #1e1e1e;
-    --lumo-base-color: #1e1e1e;
+html,
+body {
+    color-scheme: light;
+}
 
-    /* Text colors so things stay readable */
-    --lumo-body-text-color: #f5f5f5;
-    --lumo-header-text-color: #ffffff;
+:root {
+    --lumo-font-family: "Segoe UI", "Inter", "Roboto", sans-serif;
+
+    --lumo-base-color: hsl(210 27% 98%);
+    --lumo-tint-5pct: hsla(210, 20%, 0%, 0.03);
+    --lumo-tint-10pct: hsla(210, 20%, 0%, 0.06);
+    --lumo-tint-20pct: hsla(210, 20%, 0%, 0.12);
+    --lumo-tint-30pct: hsla(210, 20%, 0%, 0.18);
+    --lumo-tint-40pct: hsla(210, 20%, 0%, 0.24);
+    --lumo-tint-50pct: hsla(210, 20%, 0%, 0.38);
+    --lumo-tint-60pct: hsla(210, 20%, 0%, 0.5);
+    --lumo-tint-70pct: hsla(210, 20%, 0%, 0.62);
+    --lumo-tint-80pct: hsla(210, 20%, 0%, 0.74);
+    --lumo-tint-90pct: hsla(210, 20%, 0%, 0.86);
+    --lumo-tint: hsl(210 20% 8%);
+
+    --lumo-shade-5pct: hsla(210, 30%, 100%, 0.04);
+    --lumo-shade-10pct: hsla(210, 30%, 100%, 0.08);
+    --lumo-shade-20pct: hsla(210, 30%, 100%, 0.16);
+    --lumo-shade-30pct: hsla(210, 30%, 100%, 0.24);
+    --lumo-shade-40pct: hsla(210, 30%, 100%, 0.32);
+    --lumo-shade-50pct: hsla(210, 30%, 100%, 0.4);
+    --lumo-shade-60pct: hsla(210, 30%, 100%, 0.52);
+    --lumo-shade-70pct: hsla(210, 30%, 100%, 0.64);
+    --lumo-shade-80pct: hsla(210, 30%, 100%, 0.76);
+    --lumo-shade-90pct: hsla(210, 30%, 100%, 0.88);
+    --lumo-shade: hsl(210 30% 100%);
+
+    --lumo-primary-color: hsl(204 92% 44%);
+    --lumo-primary-color-50pct: hsla(204, 92%, 44%, 0.5);
+    --lumo-primary-color-10pct: hsla(204, 92%, 44%, 0.1);
+    --lumo-primary-text-color: hsl(204 100% 32%);
+
+    --lumo-success-color: hsl(148 72% 32%);
+    --lumo-success-color-10pct: hsla(148, 72%, 32%, 0.12);
+    --lumo-success-text-color: hsl(148 84% 24%);
+
+    --lumo-error-color: hsl(3 72% 50%);
+    --lumo-error-color-10pct: hsla(3, 72%, 50%, 0.12);
+    --lumo-error-text-color: hsl(3 82% 38%);
+
+    --lumo-body-background-color: hsl(210 33% 96%);
+    --lumo-contrast-5pct: var(--lumo-tint-5pct);
+    --lumo-contrast-10pct: var(--lumo-tint-10pct);
+    --lumo-contrast-20pct: var(--lumo-tint-20pct);
+    --lumo-contrast-30pct: var(--lumo-tint-30pct);
+    --lumo-contrast-40pct: var(--lumo-tint-40pct);
+    --lumo-contrast-50pct: var(--lumo-tint-50pct);
+    --lumo-contrast-60pct: var(--lumo-tint-60pct);
+    --lumo-contrast-70pct: var(--lumo-tint-70pct);
+    --lumo-contrast-80pct: var(--lumo-tint-80pct);
+    --lumo-contrast-90pct: var(--lumo-tint-90pct);
+    --lumo-contrast: var(--lumo-tint);
+
+    --lumo-body-text-color: hsl(215 28% 18%);
+    --lumo-secondary-text-color: hsl(215 16% 36%);
+    --lumo-tertiary-text-color: hsl(215 14% 48%);
+    --lumo-disabled-text-color: hsl(215 12% 63%);
+    --lumo-header-text-color: hsl(215 30% 12%);
+
+    --lumo-border-radius-s: 0.45rem;
+    --lumo-border-radius-m: 0.8rem;
+    --lumo-border-radius-l: 1.2rem;
+
+    --lumo-box-shadow-xs: 0 1px 2px hsla(215, 30%, 15%, 0.06);
+    --lumo-box-shadow-s: 0 6px 18px hsla(215, 30%, 20%, 0.1);
+    --lumo-box-shadow-m: 0 14px 32px hsla(215, 30%, 20%, 0.14);
+    --lumo-box-shadow-l: 0 24px 54px hsla(215, 30%, 20%, 0.18);
+
+    --app-body-background:
+        radial-gradient(circle at top left, hsla(204, 92%, 44%, 0.12), transparent 24rem),
+        radial-gradient(circle at top right, hsla(148, 72%, 32%, 0.08), transparent 22rem),
+        linear-gradient(180deg, hsl(210 40% 98%), hsl(210 28% 94%));
+    --app-navbar-background: linear-gradient(180deg, hsla(0, 0%, 100%, 0.9), hsla(210, 35%, 97%, 0.94));
+    --app-panel-background: linear-gradient(180deg, hsla(0, 0%, 100%, 0.9), hsla(210, 30%, 98%, 0.94));
+}
+
+html[theme~="dark"],
+body[theme~="dark"] {
+    color-scheme: dark;
+    --lumo-base-color: hsl(220 18% 11%);
+    --lumo-tint-5pct: hsla(220, 20%, 98%, 0.05);
+    --lumo-tint-10pct: hsla(220, 20%, 98%, 0.1);
+    --lumo-tint-20pct: hsla(220, 20%, 98%, 0.2);
+    --lumo-tint-30pct: hsla(220, 20%, 98%, 0.3);
+    --lumo-tint-40pct: hsla(220, 20%, 98%, 0.4);
+    --lumo-tint-50pct: hsla(220, 20%, 98%, 0.5);
+    --lumo-tint-60pct: hsla(220, 20%, 98%, 0.6);
+    --lumo-tint-70pct: hsla(220, 20%, 98%, 0.7);
+    --lumo-tint-80pct: hsla(220, 20%, 98%, 0.8);
+    --lumo-tint-90pct: hsla(220, 20%, 98%, 0.9);
+    --lumo-tint: hsl(220 20% 98%);
+
+    --lumo-shade-5pct: hsla(220, 30%, 2%, 0.05);
+    --lumo-shade-10pct: hsla(220, 30%, 2%, 0.1);
+    --lumo-shade-20pct: hsla(220, 30%, 2%, 0.2);
+    --lumo-shade-30pct: hsla(220, 30%, 2%, 0.3);
+    --lumo-shade-40pct: hsla(220, 30%, 2%, 0.4);
+    --lumo-shade-50pct: hsla(220, 30%, 2%, 0.5);
+    --lumo-shade-60pct: hsla(220, 30%, 2%, 0.6);
+    --lumo-shade-70pct: hsla(220, 30%, 2%, 0.7);
+    --lumo-shade-80pct: hsla(220, 30%, 2%, 0.8);
+    --lumo-shade-90pct: hsla(220, 30%, 2%, 0.9);
+    --lumo-shade: hsl(220 30% 2%);
+
+    --lumo-primary-color: hsl(199 89% 60%);
+    --lumo-primary-color-50pct: hsla(199, 89%, 60%, 0.5);
+    --lumo-primary-color-10pct: hsla(199, 89%, 60%, 0.1);
+    --lumo-primary-text-color: hsl(197 100% 74%);
+
+    --lumo-success-color: hsl(148 58% 47%);
+    --lumo-success-color-10pct: hsla(148, 58%, 47%, 0.1);
+    --lumo-success-text-color: hsl(148 70% 69%);
+
+    --lumo-error-color: hsl(3 90% 63%);
+    --lumo-error-color-10pct: hsla(3, 90%, 63%, 0.1);
+    --lumo-error-text-color: hsl(3 100% 78%);
+
+    --lumo-body-background-color: hsl(220 20% 9%);
+
+    --lumo-body-text-color: hsl(214 32% 91%);
+    --lumo-secondary-text-color: hsl(214 18% 74%);
+    --lumo-tertiary-text-color: hsl(214 14% 62%);
+    --lumo-disabled-text-color: hsl(214 12% 46%);
+    --lumo-header-text-color: hsl(210 25% 98%);
+
+    --lumo-box-shadow-xs: 0 1px 2px hsla(220, 40%, 2%, 0.18);
+    --lumo-box-shadow-s: 0 6px 18px hsla(220, 45%, 2%, 0.22);
+    --lumo-box-shadow-m: 0 14px 32px hsla(220, 45%, 2%, 0.28);
+    --lumo-box-shadow-l: 0 24px 54px hsla(220, 45%, 2%, 0.34);
+
+    --app-body-background:
+        radial-gradient(circle at top left, hsla(199, 89%, 60%, 0.12), transparent 24rem),
+        radial-gradient(circle at top right, hsla(148, 58%, 47%, 0.08), transparent 22rem),
+        linear-gradient(180deg, hsl(220 20% 10%), hsl(220 22% 8%));
+    --app-navbar-background: linear-gradient(180deg, hsla(220, 16%, 16%, 0.96), hsla(220, 18%, 12%, 0.96));
+    --app-panel-background: linear-gradient(180deg, hsla(220, 16%, 16%, 0.9), hsla(220, 18%, 13%, 0.92));
+}
+
+body {
+    background: var(--app-body-background);
+    color: var(--lumo-body-text-color);
+}
+
+a {
+    color: var(--lumo-primary-text-color);
+}
+
+vaadin-app-layout::part(navbar) {
+    background: transparent;
+    border-bottom: 1px solid var(--lumo-contrast-10pct);
+}
+
+.app-navbar {
+    box-sizing: border-box;
+    min-height: 4.5rem;
+    padding: 0.9rem 1.25rem;
+    background: var(--app-navbar-background);
+    border-bottom: 1px solid var(--lumo-contrast-10pct);
+    box-shadow: var(--lumo-box-shadow-s);
+    gap: 1rem;
+}
+
+.app-navbar-title {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    color: var(--lumo-header-text-color);
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+}
+
+.app-navbar-links {
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.app-navbar-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.2rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    color: var(--lumo-secondary-text-color);
+    text-decoration: none;
+    transition: background-color 120ms ease, color 120ms ease;
+}
+
+.app-navbar-links a:hover {
+    background: var(--lumo-contrast-10pct);
+    color: var(--lumo-body-text-color);
+}
+
+.app-navbar-links a[highlight] {
+    background: var(--lumo-primary-color-10pct);
+    color: var(--lumo-primary-text-color);
+}
+
+.app-navbar-avatar {
+    --vaadin-avatar-size: 2.5rem;
+    display: block;
+    box-shadow: 0 0 0 2px var(--lumo-contrast-10pct);
+    border-radius: 50%;
+}
+
+.app-navbar-avatar-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    line-height: 0;
+    font-size: 0;
+    background: transparent;
+    border-radius: 999px;
+    text-decoration: none;
+    vertical-align: middle;
+    overflow: visible;
+    transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+
+.app-navbar-avatar-button:hover {
+    background: var(--lumo-contrast-10pct);
+}
+
+.app-navbar-avatar-button:focus-visible,
+.app-navbar-avatar-button[focus-ring] {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--lumo-primary-color-50pct);
+}
+
+.upload-form-column {
+    gap: 0.85rem;
+}
+
+.upload-explanation {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 1.25rem 1.35rem;
+    background: var(--app-panel-background);
+    color: var(--lumo-body-text-color);
+    border: 1px solid var(--lumo-contrast-10pct);
+    border-radius: var(--lumo-border-radius-l);
+    box-shadow: var(--lumo-box-shadow-s);
+    line-height: 1.65;
 }

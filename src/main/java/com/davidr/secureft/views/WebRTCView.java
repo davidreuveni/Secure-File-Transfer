@@ -20,10 +20,8 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
-import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
@@ -37,6 +35,7 @@ public class WebRTCView extends VerticalLayout implements BeforeEnterObserver {
 
     private final TextField username = new TextField("Username to open a connection with");
     private final TextField message = new TextField("Message");
+    private final TextField secretField = new TextField("Secret");
     private final Paragraph status = new Paragraph();
     private final TextArea transcript = new TextArea("Connection log");
     private final Div localIdentity = new Div();
@@ -45,6 +44,7 @@ public class WebRTCView extends VerticalLayout implements BeforeEnterObserver {
     private final Button callButton = new Button("Call", e -> startCall());
     private final Button sendButton = new Button("Send", e -> sendMessage());
     private final Button hangupButton = new Button("Hang Up", e -> hangUp());
+    private final Button secretButton = new Button("Exchange Secret", e -> exchangeSecret());
     private User loggedUser;
     private final MemoryBuffer fileBuffer = new MemoryBuffer();
     private final Upload upload = new Upload(fileBuffer);
@@ -56,10 +56,12 @@ public class WebRTCView extends VerticalLayout implements BeforeEnterObserver {
         setMaxWidth(null);
         setPadding(true);
         setSpacing(true);
-        setAlignItems(Alignment.START);
+        setAlignItems(Alignment.STRETCH);
 
         username.setWidth("24rem");
         message.setWidth("24rem");
+        secretField.setWidth("24rem");
+        secretButton.setWidth("24rem");
 
         upload.setMaxFiles(1);
         upload.setDropAllowed(false);
@@ -86,8 +88,10 @@ public class WebRTCView extends VerticalLayout implements BeforeEnterObserver {
                 localIdentity,
                 username,
                 message,
+                secretField,
                 upload,
                 actions,
+                secretButton,
                 status,
                 transferStatus,
                 transferProgress,
@@ -124,6 +128,15 @@ public class WebRTCView extends VerticalLayout implements BeforeEnterObserver {
 
     private void hangUp() {
         getElement().executeJs("window.secureftRtc.hangUp()");
+    }
+
+    private void exchangeSecret() {
+        String value = secretField.getValue();
+        if (value != null && !value.trim().isEmpty()) {
+            appendTranscript("me: sending secret encrypted with RSA: " + value);
+            getElement().executeJs("window.secureftRtc.exchangeSecretWithRSA($0)", value);
+            secretField.clear();
+        }
     }
 
     @ClientCallable
@@ -179,11 +192,8 @@ public class WebRTCView extends VerticalLayout implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent e) {
-        HttpServletRequest request = (HttpServletRequest) VaadinService.getCurrentRequest();
-        loggedUser = authService.getLoggedUser(request);
-
+        loggedUser = ViewAuthSupport.requireLoggedUser(authService, e);
         if (loggedUser == null) {
-            e.rerouteTo(LoginView.class);
             return;
         }
 

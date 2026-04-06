@@ -7,6 +7,8 @@ Choose whether you want to encrypt a file for safe storage or decrypt a file tha
 If you are encrypting:
 Use a key you will remember exactly. The same key will be needed later to open the file again. You can choose Regular mode for standard encryption, or HMAC-SHA256 if you also want an integrity check that helps detect changes to the file.
 
+After encryption is complete, download the encrypted file and open the File Transfer tab if you want to send it to another user. Start the WebRTC connection there, choose the encrypted file, and send that protected file instead of the original plain file. The receiver can then use this page again to decrypt it with the same key and mode.
+
 If you are decrypting:
 Make sure you use the same key and the same integrity mode that were used when the file was encrypted. If they do not match, processing will fail.
 

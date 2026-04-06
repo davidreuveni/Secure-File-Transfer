@@ -1,11 +1,14 @@
 window.secureftRtc = {
-  init(host, username) {
+  async init(host, username) {
     this.host = host;
     this.username = username;
     this.ws = null;
     this.pc = null;
     this.dc = null;
     this.currentPeer = null;
+    this.peerPublicKey = null;
+    this.rsaKeyPair = null;
+    this.pendingSecret = null;
 
     window.secureftRtcFile.initFileState(this);
 
@@ -52,6 +55,84 @@ window.secureftRtc = {
             to: msg.from,
             sdp: answer.sdp
           }));
+          return;
+        }
+
+        if (msg.type === "getkey") {
+          this.currentPeer = msg.from;
+
+          if (!this.rsaKeyPair) {
+            this.rsaKeyPair = await crypto.subtle.generateKey(
+              {
+                name: "RSA-OAEP",
+                modulusLength: 2048,
+                publicExponent: new Uint8Array([1, 0, 1]),
+                hash: "SHA-256"
+              },
+              true,
+              ["encrypt", "decrypt"]
+            );
+          }
+
+          const publicKeySpki = await crypto.subtle.exportKey("spki", this.rsaKeyPair.publicKey);
+
+          const publicKeyBase64 = this.arrayBufferToBase64(publicKeySpki);
+
+          this.ws.send(JSON.stringify({
+            type: "herekey",
+            from: this.username,
+            to: msg.from,
+            key: publicKeyBase64
+          }));
+          return;
+        }
+
+        if (msg.type === "herekey") {
+          this.currentPeer = msg.from;
+          const publicKeyBase64 = msg.key;
+
+          const importedPublicKey = await crypto.subtle.importKey(
+            "spki",
+            this.base64ToArrayBuffer(publicKeyBase64),
+            {
+              name: "RSA-OAEP",
+              hash: "SHA-256"
+            },
+            true,
+            ["encrypt"]
+          );
+
+          this.peerPublicKey = importedPublicKey;
+
+          this.host.$server.appendSystemMessage("Peer public key received");
+
+          if (this.pendingSecret) {
+            const pendingSecret = this.pendingSecret;
+            this.pendingSecret = null;
+            await this.exchangeSecretWithRSA(pendingSecret, true);
+          }
+          return;
+        }
+
+        if (msg.type === "secret-encrypted") {
+          this.currentPeer = msg.from;
+          const encryptedSecretBase64 = msg.encryptedValue;
+
+          if (!this.rsaKeyPair) {
+            this.host.$server.appendSystemMessage("No RSA key pair available to decrypt");
+            return;
+          }
+
+          const decryptedSecret = await crypto.subtle.decrypt(
+            { name: "RSA-OAEP" },
+            this.rsaKeyPair.privateKey,
+            this.base64ToArrayBuffer(encryptedSecretBase64)
+          );
+
+          const decoder = new TextDecoder();
+          const secret = decoder.decode(decryptedSecret);
+
+          this.host.$server.appendRemoteMessage(this.currentPeer, "[SECRET-RSA]: " + secret);
           return;
         }
 
@@ -103,12 +184,12 @@ window.secureftRtc = {
 
   async createPeerConnection(isCaller) {
     if (this.dc) {
-      try { this.dc.close(); } catch (e) {}
+      try { this.dc.close(); } catch (e) { }
       this.dc = null;
     }
 
     if (this.pc) {
-      try { this.pc.close(); } catch (e) {}
+      try { this.pc.close(); } catch (e) { }
       this.pc = null;
     }
 
@@ -226,21 +307,88 @@ window.secureftRtc = {
     await window.secureftRtcFile.sendFile(this, fileName, mimeType, base64Data);
   },
 
+  async exchangeSecretWithRSA(secret, skipKeyRequest = false) {
+    if (!this.peerPublicKey) {
+      if (!this.currentPeer) {
+        this.host.$server.updateStatus("No peer connected", true);
+        return;
+      }
+
+      if (skipKeyRequest) {
+        this.host.$server.updateStatus("No peer public key available", true);
+        return;
+      }
+
+      this.pendingSecret = secret;
+      this.host.$server.updateStatus("Requesting peer public key...", false);
+      this.ws.send(JSON.stringify({
+        type: "getkey",
+        from: this.username,
+        to: this.currentPeer
+      }));
+      return;
+    }
+
+    if (!this.currentPeer) {
+      this.host.$server.updateStatus("No peer connected", true);
+      return;
+    }
+
+    const encoder = new TextEncoder();
+    const secretBytes = encoder.encode(secret);
+
+    const encryptedSecret = await crypto.subtle.encrypt(
+      { name: "RSA-OAEP" },
+      this.peerPublicKey,
+      secretBytes
+    );
+
+    const encryptedSecretBase64 = this.arrayBufferToBase64(encryptedSecret);
+
+    this.ws.send(JSON.stringify({
+      type: "secret-encrypted",
+      from: this.username,
+      to: this.currentPeer,
+      encryptedValue: encryptedSecretBase64
+    }));
+
+    this.host.$server.appendSystemMessage("Secret encrypted and sent with RSA");
+  },
+
   hangUp() {
     if (this.dc) {
-      try { this.dc.close(); } catch (e) {}
+      try { this.dc.close(); } catch (e) { }
       this.dc = null;
     }
 
     if (this.pc) {
-      try { this.pc.close(); } catch (e) {}
+      try { this.pc.close(); } catch (e) { }
       this.pc = null;
     }
 
     window.secureftRtcFile.resetFileState(this);
     this.currentPeer = null;
+    this.peerPublicKey = null;
+    this.rsaKeyPair = null;
+    this.pendingSecret = null;
 
     this.host.$server.hideTransferProgress("No active transfer");
     this.host.$server.updateStatus("Disconnected", false);
+  },
+
+  arrayBufferToBase64(buffer) {
+    const bytes = new Uint8Array(buffer);
+    let binary = "";
+    for (const b of bytes) binary += String.fromCharCode(b);
+    return btoa(binary);
+  },
+  base64ToArrayBuffer(base64) {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes.buffer;
   }
+
 };

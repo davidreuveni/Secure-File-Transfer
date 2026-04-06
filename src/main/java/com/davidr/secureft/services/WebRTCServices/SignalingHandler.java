@@ -35,7 +35,7 @@ public class SignalingHandler extends TextWebSocketHandler {
                 session.sendMessage(new TextMessage("registered as: " + signal.getFrom()));
             }
 
-            case "call-user", "offer", "answer", "ice-candidate" -> {
+            case "call-user", "offer", "answer", "ice-candidate", "getkey", "herekey", "secret-encrypted" -> {
                 WebSocketSession targetSession = userSessionRegistry.getSession(signal.getTo());
                 if (targetSession != null && targetSession.isOpen()) {
                     targetSession.sendMessage(new TextMessage(message.getPayload()));

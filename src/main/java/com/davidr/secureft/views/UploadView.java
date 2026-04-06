@@ -60,6 +60,8 @@ public class UploadView extends HorizontalLayout implements CryptListener {
 
         formColumn.setWidth("50%");
         explanation.setWidth("50%");
+        explanation.addClassName("upload-explanation");
+        formColumn.addClassName("upload-form-column");
 
         setFlexGrow(1, explanation);
         setFlexGrow(1, formColumn);
@@ -86,10 +88,6 @@ public class UploadView extends HorizontalLayout implements CryptListener {
         bar.setVisible(false);
 
         explanation.getStyle().set("white-space", "pre-wrap");
-        explanation.getStyle().set("background", "#f7f3ea");
-        explanation.getStyle().set("border-radius", "12px");
-        explanation.getStyle().set("padding", "1rem");
-        explanation.getStyle().set("line-height", "1.6");
 
         formColumn.add(
                 new H2("Encrypt and Download"),

@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.davidr.secureft.datamodels.User;
+import com.davidr.secureft.services.AuthService;
 import com.davidr.secureft.services.UserService;
 import org.springframework.dao.DataAccessException;
 import com.vaadin.flow.component.button.Button;
@@ -17,20 +18,27 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 @Route(value = "users/viewUsers", layout = AppNavBarLayout.class)
 @PageTitle("Users")
-public class UserView extends VerticalLayout {
+public class UserView extends VerticalLayout implements BeforeEnterObserver {
 
     private final UserService userService;
     private final Grid<User> userGrid = new Grid<>(User.class, false);
     private final TextField usernameField = new TextField("Username");
     private final PasswordField passwordField = new PasswordField("Password");
+    private User loggedUser;
 
-    public UserView(UserService userService) {
+    private final AuthService authService;
+
+    public UserView(UserService userService, AuthService authService) {
+
         this.userService = userService;
+        this.authService = authService;
 
         setSizeFull();
         setPadding(true);
@@ -136,6 +144,16 @@ public class UserView extends VerticalLayout {
             userGrid.setItems(List.of());
             Notification n = Notification.show("Could not load users: database connection failed");
             n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+        }
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent e) {
+        loggedUser = ViewAuthSupport.requireLoggedUser(authService, e);
+        if (loggedUser == null) {
+            return;
+        }
+        if (!(loggedUser.getRole().equals("admin"))){
         }
     }
 }
