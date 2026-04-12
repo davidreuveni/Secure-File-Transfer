@@ -12,13 +12,12 @@ public class User {
     private String username;
     private String hashedPassword;
     private String email;
-    private String role;
+    private UserRole role;
     private Instant createdAt;
     private Instant lastLoginAt;
     private String avatarURL;
-    
 
-    public User(String username, String hashedPassword, String email, String role, String id, Instant createdAt,
+    public User(String username, String hashedPassword, String email, UserRole role, String id, Instant createdAt,
             Instant lastLoginAt) {
         this.username = username;
         this.hashedPassword = hashedPassword;
@@ -53,11 +52,11 @@ public class User {
         this.email = email;
     }
 
-    public String getRole() {
+    public UserRole getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(UserRole role) {
         this.role = role;
     }
 

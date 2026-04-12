@@ -4,3 +4,5 @@ src/main/frontend/generated
 src/test/
 node_modules
 bundles
+.env.properties
+src/main/resources/.env.properties

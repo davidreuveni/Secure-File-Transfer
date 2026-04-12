@@ -4,24 +4,22 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.davidr.secureft.datamodels.User;
+import com.davidr.secureft.datamodels.UserRole;
 import com.davidr.secureft.repositories.UserRepo;
-
-import jakarta.servlet.http.HttpServletResponse;
 
 @Service
 public class UserService {
+    private final PasswordEncoder passwordEncoder;
+
     private final UserRepo userRepo;
 
-    private final AuthService authService;
-
-    public UserService(UserRepo userRepo, AuthService authService) {
+    public UserService(UserRepo userRepo, PasswordEncoder passwordEncoder) {
         this.userRepo = userRepo;
-        this.authService = authService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User newUser(String username, String password, String email) {
@@ -36,8 +34,8 @@ public class UserService {
             throw new IllegalArgumentException("Email already exists: " + email);
         }
 
-        String hashedPassword = passwordEncoder().encode(password);
-        String role = "user";
+        String hashedPassword = passwordEncoder.encode(password);
+        UserRole role = UserRole.ROLE_USER;
         String id = UUID.randomUUID().toString();
         Instant createdAt = Instant.now();
         Instant lastLoginAt = Instant.now();
@@ -75,28 +73,16 @@ public class UserService {
         return true;
     }
 
-    public boolean checkLogin(String username, String rawPassword, HttpServletResponse response) {
-        User user = userRepo.findByUsername(username);
-        if (user == null) {
-            return false;
-        }
-
-        if (passwordEncoder().matches(rawPassword, user.getHashedPassword())) {
-            user.setLastLoginAt(Instant.now());
-            userRepo.save(user);
-            authService.logUserIn(response, user);
-            return true;
-        }
-
-        return false;
-    }
-
     public List<User> getAllUsers() {
         return userRepo.findAll();
     }
 
     public User getUserByUsername(String username) {
         return userRepo.findByUsername(username);
+    }
+
+    public User getUserByEmail(String email) {
+        return userRepo.findByEmail(email);
     }
 
     public User createUser(User user) {
@@ -106,14 +92,44 @@ public class UserService {
         return userRepo.insert(user);
     }
 
+    public User ensureOAuthUser(String email, String displayName, String avatarUrl) {
+        emailChecker(email);
+
+        User existingUser = userRepo.findByEmail(email.trim());
+        if (existingUser != null) {
+            existingUser.setLastLoginAt(Instant.now());
+            if (avatarUrl != null && !avatarUrl.isBlank()) {
+                existingUser.setAvatarURL(avatarUrl);
+            }
+            return userRepo.save(existingUser);
+        }
+
+        String username = buildAvailableOAuthUsername(email, displayName);
+        String generatedPassword = UUID.randomUUID().toString();
+        User user = new User(
+                username,
+                passwordEncoder.encode(generatedPassword),
+                email.trim(),
+                UserRole.ROLE_USER,
+                UUID.randomUUID().toString(),
+                Instant.now(),
+                Instant.now());
+
+        if (avatarUrl != null && !avatarUrl.isBlank()) {
+            user.setAvatarURL(avatarUrl);
+        }
+
+        return userRepo.insert(user);
+    }
+
     public User updateUser(String username, String oldPassword, String newUsername, String newPassword, String newEmail,
-            String newRole, String newAvatarURL) {
+            UserRole newRole, String newAvatarURL) {
         User existingUser = userRepo.findByUsername(username);
         if (existingUser == null) {
             throw new IllegalArgumentException("User dose not exists: " + username);
         }
 
-        if (!passwordEncoder().matches(oldPassword, existingUser.getHashedPassword())) {
+        if (!passwordEncoder.matches(oldPassword, existingUser.getHashedPassword())) {
             throw new IllegalArgumentException("old password isnt correct!");
         }
 
@@ -135,7 +151,7 @@ public class UserService {
             }
         }
 
-        existingUser.setHashedPassword(passwordEncoder().encode(newPassword));
+        existingUser.setHashedPassword(passwordEncoder.encode(newPassword));
         existingUser.setEmail(newEmail);
         existingUser.setRole(newRole);
         existingUser.setAvatarURL(newAvatarURL);
@@ -151,8 +167,32 @@ public class UserService {
         return true;
     }
 
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12);
+    private String buildAvailableOAuthUsername(String email, String displayName) {
+        String base = normalizeUsernameCandidate(displayName);
+        if (base.isBlank()) {
+            int atIndex = email.indexOf('@');
+            base = atIndex > 0 ? normalizeUsernameCandidate(email.substring(0, atIndex)) : "googleuser";
+        }
+        if (base.isBlank()) {
+            base = "googleuser";
+        }
+
+        String candidate = base;
+        int suffix = 1;
+        while (userRepo.existsByUsername(candidate)) {
+            candidate = base + suffix;
+            suffix++;
+        }
+        return candidate;
+    }
+
+    private String normalizeUsernameCandidate(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        String normalized = value.trim().replaceAll("[^A-Za-z0-9._-]", "");
+        return normalized.length() > 40 ? normalized.substring(0, 40) : normalized;
     }
 
     public boolean isValidPassword(String password) {

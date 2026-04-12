@@ -1,7 +1,7 @@
 package com.davidr.secureft.views;
 
 import com.davidr.secureft.datamodels.User;
-import com.davidr.secureft.services.AuthService;
+import com.davidr.secureft.security.SecurityService;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
@@ -14,17 +14,14 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.VaadinSession;
-import com.vaadin.flow.server.VaadinService;
-import com.vaadin.flow.server.VaadinServletResponse;
 import com.vaadin.flow.theme.lumo.Lumo;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 public class AppNavBarLayout extends AppLayout {
     private static final String THEME_SESSION_KEY = "secureft-theme";
+    private final SecurityService securityService;
 
-    public AppNavBarLayout(AuthService authService) {
+    public AppNavBarLayout(SecurityService securityService) {
+        this.securityService = securityService;
         applySavedTheme();
 
         HorizontalLayout navbarPanel = new HorizontalLayout();
@@ -37,17 +34,22 @@ public class AppNavBarLayout extends AppLayout {
         RouterLink title = new RouterLink("Secure File Transfer", UploadView.class);
         title.addClassName("app-navbar-title");
 
+        User loggedUser = securityService.getCurrentUser();
+
         HorizontalLayout links = new HorizontalLayout();
         links.addClassName("app-navbar-links");
         links.setSpacing(true);
         links.setPadding(false);
         links.setAlignItems(Alignment.CENTER);
-        links.add(
-                new RouterLink("Upload", UploadView.class),
-                new RouterLink("Login", LoginView.class),
-                new RouterLink("Users", UserView.class),
-                new Anchor("/book", "Book"),
-                new RouterLink("File Transfer", WebRTCView.class));
+        links.add(new RouterLink("Upload", UploadView.class));
+        links.add(new Anchor("/book", "Book"));
+        if (loggedUser == null) {
+            links.add(new RouterLink("Login", LoginView.class));
+            links.add(new RouterLink("Sign Up", SignInView.class));
+        } else {
+            links.add(new RouterLink("Users", UserView.class));
+            links.add(new RouterLink("File Transfer", WebRTCView.class));
+        }
 
         navbarPanel.add(title, links);
 
@@ -55,13 +57,9 @@ public class AppNavBarLayout extends AppLayout {
         navbarPanel.add(space);
         navbarPanel.expand(space);
 
-        HttpServletRequest request = (HttpServletRequest) VaadinService.getCurrentRequest();
-        User loggedUser = authService.getLoggedUser(request);
-
         Avatar userAvatar = new Avatar();
         if (loggedUser == null) {
-            userAvatar.setName("guest user");
-            userAvatar.setImage("https://ohsobserver.com/wp-content/uploads/2022/12/Guest-user.png");
+            userAvatar.setName("Guest user");
         } else {
             userAvatar.setName(loggedUser.getUsername());
             userAvatar.setImage(loggedUser.getAvatarURL());
@@ -74,19 +72,25 @@ public class AppNavBarLayout extends AppLayout {
         avatarButton.getElement().setAttribute("role", "button");
         avatarButton.getElement().setAttribute("tabindex", "0");
 
-        ContextMenu avatarMenu = createAvatarMenu(avatarButton, authService);
+        ContextMenu avatarMenu = createAvatarMenu(avatarButton, loggedUser);
 
         navbarPanel.add(avatarButton);
         addToNavbar(navbarPanel);
         addToNavbar(avatarMenu);
     }
 
-    private ContextMenu createAvatarMenu(Div avatarButton, AuthService authService) {
+    private ContextMenu createAvatarMenu(Div avatarButton, User loggedUser) {
         ContextMenu menu = new ContextMenu();
         menu.setTarget(avatarButton);
         menu.setOpenOnClick(true);
 
-        menu.addItem("Settings", event -> UI.getCurrent().navigate(UserSettingsView.class));
+        if (loggedUser == null) {
+            menu.addItem("Login", event -> UI.getCurrent().navigate(LoginView.class));
+            menu.addItem("Create account", event -> UI.getCurrent().navigate(SignInView.class));
+        } else {
+            menu.addItem("Settings", event -> UI.getCurrent().navigate(UserSettingsView.class));
+            menu.addItem("Log out", event -> logOut());
+        }
 
         final MenuItem[] themeItemRef = new MenuItem[1];
         themeItemRef[0] = menu.addItem("", event -> {
@@ -95,8 +99,6 @@ public class AppNavBarLayout extends AppLayout {
             updateThemeMenuText(themeItemRef[0], dark);
         });
         updateThemeMenuText(themeItemRef[0], isDarkTheme());
-
-        menu.addItem("Log out", event -> logOut(authService));
         return menu;
     }
 
@@ -123,17 +125,7 @@ public class AppNavBarLayout extends AppLayout {
         }
     }
 
-    private void logOut(AuthService authService) {
-        HttpServletRequest request = (HttpServletRequest) VaadinService.getCurrentRequest();
-        HttpServletResponse response = null;
-        if (VaadinService.getCurrentResponse() instanceof VaadinServletResponse vsr) {
-            response = vsr.getHttpServletResponse();
-        }
-
-        if (request != null && response != null) {
-            authService.logUserOut(request, response);
-        }
-
-        UI.getCurrent().getPage().setLocation("/login");
+    private void logOut() {
+        UI.getCurrent().getPage().setLocation("/logout");
     }
 }

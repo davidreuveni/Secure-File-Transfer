@@ -8,6 +8,8 @@ import com.davidr.secureft.datamodels.User;
 @Repository
 public interface UserRepo extends MongoRepository<User, String> {
     User findByUsername(String username);
+    
+    User findByEmail(String email);
 
     boolean existsByUsername(String username);
 

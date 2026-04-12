@@ -1,7 +1,7 @@
 package com.davidr.secureft.views;
 
 import com.davidr.secureft.datamodels.User;
-import com.davidr.secureft.services.AuthService;
+import com.davidr.secureft.security.SecurityService;
 import com.davidr.secureft.services.UserService;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
@@ -20,6 +20,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.security.PermitAll;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import java.io.IOException;
@@ -29,6 +30,7 @@ import java.util.Base64;
 @JavaScript("./webrtc-file.js")
 @JavaScript("./webrtc-connection.js")
 @Route(value = "users/WebRTC", layout = AppNavBarLayout.class)
+@PermitAll
 @PageTitle("open a secure connection with another browser")
 @SuppressWarnings("removal")
 public class WebRTCView extends VerticalLayout implements BeforeEnterObserver {
@@ -48,10 +50,10 @@ public class WebRTCView extends VerticalLayout implements BeforeEnterObserver {
     private User loggedUser;
     private final MemoryBuffer fileBuffer = new MemoryBuffer();
     private final Upload upload = new Upload(fileBuffer);
+    private final SecurityService securityService;
 
-    private final AuthService authService;
-    public WebRTCView(AuthService authService, UserService userService) {
-        this.authService = authService;
+    public WebRTCView(UserService userService, SecurityService securityService) {
+        this.securityService = securityService;
         setWidthFull();
         setMaxWidth(null);
         setPadding(true);
@@ -96,6 +98,17 @@ public class WebRTCView extends VerticalLayout implements BeforeEnterObserver {
                 transferStatus,
                 transferProgress,
                 transcript);
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        loggedUser = securityService.getCurrentUser();
+        if (loggedUser == null) {
+            event.forwardTo(LoginView.class);
+            return;
+        }
+
+        localIdentity.setText("Logged in as: " + loggedUser.getUsername());
     }
 
     private void startCall() {
@@ -188,16 +201,6 @@ public class WebRTCView extends VerticalLayout implements BeforeEnterObserver {
         } else {
             transcript.setValue(current + System.lineSeparator() + line);
         }
-    }
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent e) {
-        loggedUser = ViewAuthSupport.requireLoggedUser(authService, e);
-        if (loggedUser == null) {
-            return;
-        }
-
-        localIdentity.setText("Logged in as: " + loggedUser.getUsername());
     }
 
     @Override

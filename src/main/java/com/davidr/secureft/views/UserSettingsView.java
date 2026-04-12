@@ -4,8 +4,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import com.davidr.secureft.datamodels.User;
-import com.davidr.secureft.services.AuthService;
+import com.davidr.secureft.datamodels.UserRole;
+import com.davidr.secureft.security.SecurityService;
 import com.davidr.secureft.services.UserService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
@@ -19,15 +21,17 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.security.PermitAll;
 
 @Route(value = "users/settings", layout = AppNavBarLayout.class)
+@PermitAll
 @PageTitle("Edit User Settings")
-public class UserSettingsView extends VerticalLayout implements BeforeEnterObserver{
+public class UserSettingsView extends VerticalLayout implements BeforeEnterObserver {
 
     private final PasswordField oldPass = new PasswordField("Old Password (must)");
     private final PasswordField newPass = new PasswordField("New Password (opt)");
     private final PasswordField againNewPass = new PasswordField("New Password Again");
-    private final RadioButtonGroup<String> role = new RadioButtonGroup<>();
+    private final RadioButtonGroup<UserRole> role = new RadioButtonGroup<>();
     private final TextField email = new TextField("New E-Mail (opt)");
     private final TextField username = new TextField("New Username (opt)");
     private final TextField avatarUrlField = new TextField("Avatar Image URL (opt)");
@@ -35,15 +39,12 @@ public class UserSettingsView extends VerticalLayout implements BeforeEnterObser
     private String avatarPath;
     private User loggedUser;
 
-
-
-    private final AuthService authService;
     private final UserService userService;
+    private final SecurityService securityService;
 
-    public UserSettingsView(AuthService authService, UserService userService) {
-
-        this.authService = authService;
+    public UserSettingsView(UserService userService, SecurityService securityService) {
         this.userService = userService;
+        this.securityService = securityService;
 
         setWidthFull();
         setMaxWidth(null);
@@ -52,8 +53,9 @@ public class UserSettingsView extends VerticalLayout implements BeforeEnterObser
         setAlignItems(Alignment.START);
 
         role.setLabel("New Role");
-        role.setItems("user", "admin");
-        role.setValue("user");
+        role.setItems(UserRole.values());
+        role.setItemLabelGenerator(UserRole::getDisplayName);
+        role.setValue(UserRole.ROLE_USER);
 
         // status.getStyle()
 
@@ -82,6 +84,19 @@ public class UserSettingsView extends VerticalLayout implements BeforeEnterObser
                 avatarUrlField,
                 go
             );
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        loggedUser = securityService.getCurrentUser();
+        if (loggedUser == null) {
+            event.forwardTo(LoginView.class);
+            return;
+        }
+
+        avatarPath = loggedUser.getAvatarURL();
+        role.setValue(loggedUser.getRole());
+        avatarUrlField.setValue(avatarPath == null ? "" : avatarPath);
     }
 
     private void update() {
@@ -116,7 +131,7 @@ public class UserSettingsView extends VerticalLayout implements BeforeEnterObser
         String newUsername = username.isEmpty() ? loggedUser.getUsername() : username.getValue().trim();
         String updatedPassword = newPass.isEmpty() ? oldPass.getValue() : newPass.getValue();
         String newEmail = email.isEmpty() ? loggedUser.getEmail() : email.getValue().trim();
-        String newRole = role.isEmpty() ? loggedUser.getRole() : role.getValue();
+        UserRole newRole = role.isEmpty() ? loggedUser.getRole() : role.getValue();
         String newAvatar = avatarInput.isEmpty() ? loggedUser.getAvatarURL() : avatarInput;
 
         try {
@@ -128,6 +143,7 @@ public class UserSettingsView extends VerticalLayout implements BeforeEnterObser
                     newEmail,
                     newRole,
                     newAvatar);
+            securityService.refreshAuthentication(loggedUser);
 
             oldPass.clear();
             newPass.clear();
@@ -140,6 +156,7 @@ public class UserSettingsView extends VerticalLayout implements BeforeEnterObser
             status.setVisible(false);
 
             Notification.show("User settings updated successfully.", 3000, Notification.Position.TOP_CENTER);
+            UI.getCurrent().getPage().reload();
         } catch (IllegalArgumentException ex) {
             Notification.show(ex.getMessage(), 5000, Notification.Position.MIDDLE);
         }
@@ -168,18 +185,6 @@ public class UserSettingsView extends VerticalLayout implements BeforeEnterObser
             againNewPass.setInvalid(false);
             status.setVisible(false);
         }
-    }
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent e) {
-        loggedUser = ViewAuthSupport.requireLoggedUser(authService, e);
-        if (loggedUser == null) {
-            return;
-        }
-
-        avatarPath = loggedUser.getAvatarURL();
-        role.setValue(loggedUser.getRole());
-        avatarUrlField.setValue(avatarPath == null ? "" : avatarPath);
     }
 
     private boolean isValidImageUrl(String value) {

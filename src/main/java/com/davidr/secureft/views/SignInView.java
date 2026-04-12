@@ -7,6 +7,7 @@ import com.davidr.secureft.datamodels.User;
 import com.davidr.secureft.services.UserService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.notification.Notification;
@@ -18,10 +19,13 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @Route(value = "signin", layout = AppNavBarLayout.class)
+@AnonymousAllowed
 @PageTitle("Create Account")
 public class SignInView extends VerticalLayout {
+    private static final String FORM_WIDTH = "23rem";
 
     private final UserService userService;
 
@@ -36,20 +40,25 @@ public class SignInView extends VerticalLayout {
     public SignInView(UserService userService) {
         this.userService = userService;
 
-        setWidthFull();
-        setMaxWidth("34rem");
+        setSizeFull();
         setPadding(true);
         setSpacing(true);
-        setAlignItems(Alignment.STRETCH);
+        setAlignItems(Alignment.CENTER);
+        setJustifyContentMode(JustifyContentMode.CENTER);
 
         username.setRequired(true);
+        username.setWidth(FORM_WIDTH);
         email.setRequiredIndicatorVisible(true);
         email.setClearButtonVisible(true);
+        email.setWidth(FORM_WIDTH);
 
         password.setRequired(true);
+        password.setWidth(FORM_WIDTH);
         confirmPassword.setRequired(true);
+        confirmPassword.setWidth(FORM_WIDTH);
 
         avatarUrl.setPlaceholder("https://example.com/avatar.png");
+        avatarUrl.setWidth(FORM_WIDTH);
 
         password.setValueChangeMode(ValueChangeMode.EAGER);
         password.addValueChangeListener(event -> validatePasswordFields());
@@ -60,8 +69,12 @@ public class SignInView extends VerticalLayout {
         status.getStyle().set("white-space", "pre-line");
         status.getStyle().set("color", "red");
         status.setVisible(false);
+        status.setWidth(FORM_WIDTH);
+
+        Button googleLogin = createGoogleLoginButton();
 
         Button createAccount = new Button("Create Account", event -> registerUser());
+        createAccount.setWidth(FORM_WIDTH);
 
         add(
                 new H2("Create Account"),
@@ -71,7 +84,25 @@ public class SignInView extends VerticalLayout {
                 confirmPassword,
                 avatarUrl,
                 status,
-                createAccount);
+                createAccount,
+                googleLogin
+            );
+    }
+
+    private Button createGoogleLoginButton() {
+        Image googleLogo = new Image(
+                "https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg",
+                "Google logo");
+        googleLogo.setWidth("18px");
+        googleLogo.setHeight("18px");
+
+        Button googleLogin = new Button();
+        googleLogin.setText("Sign in with Google");
+        googleLogin.setIcon(googleLogo);
+        googleLogin.addClickListener(event -> UI.getCurrent().getPage().setLocation("/oauth2/authorization/google"));
+        googleLogin.getStyle().set("font-weight", "600");
+        googleLogin.setWidth(FORM_WIDTH);
+        return googleLogin;
     }
 
     private void registerUser() {
