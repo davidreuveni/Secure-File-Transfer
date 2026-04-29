@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.5.13</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
 	<groupId>com.davidr</groupId>
 	<artifactId>secureft</artifactId>
-
 	<version>0.0.1-SNAPSHOT</version>
 
 	<name>test1</name>
@@ -31,10 +32,14 @@
 	<properties>
 		<java.version>21</java.version>
 		<vaadin.version>24.9.5</vaadin.version>
+
+		<!-- JNI config -->
+		<native.lib.name>aesni</native.lib.name>
+		<native.output.dir>${project.build.directory}/native</native.output.dir>
+		<jni.headers.dir>${project.build.directory}/generated-jni</jni.headers.dir>
 	</properties>
 
 	<dependencies>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
@@ -69,16 +74,16 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-        	<groupId>org.springframework.boot</groupId>
-        	<artifactId>spring-boot-starter-oauth2-client</artifactId>
-    	</dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-client</artifactId>
+		</dependency>
 
-    	<dependency>
-        	<groupId>org.springframework.boot</groupId>
-        	<artifactId>spring-boot-starter-security</artifactId>
-    	</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
 	</dependencies>
-	
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -93,9 +98,83 @@
 
 	<build>
 		<plugins>
+			<!-- Java compile + generate JNI headers -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.15.0</version>
+				<configuration>
+					<release>${java.version}</release>
+					<compilerArgs>
+						<arg>-h</arg>
+						<arg>${jni.headers.dir}</arg>
+					</compilerArgs>
+				</configuration>
+			</plugin>
+
+			<!-- Build native DLL with gcc -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<id>create-native-output-dir</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<mkdir dir="${native.output.dir}"/>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>3.6.3</version>
+				<executions>
+					<execution>
+						<id>build-jni-dll</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>gcc</executable>
+							<arguments>
+								<argument>-shared</argument>
+								<argument>-O3</argument>
+								<argument>-maes</argument>
+								<argument>-msse2</argument>
+								<argument>-o</argument>
+								<argument>${native.output.dir}/${native.lib.name}.dll</argument>
+
+								<argument>-I</argument>
+								<argument>${env.JAVA_HOME}/include</argument>
+								<argument>-I</argument>
+								<argument>${env.JAVA_HOME}/include/win32</argument>
+								<argument>-I</argument>
+								<argument>${jni.headers.dir}</argument>
+
+								<argument>${project.basedir}/src/main/c/aesni.c</argument>
+							</arguments>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Run Spring Boot with DLL folder on java.library.path -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<jvmArguments>-Djava.library.path=${native.output.dir}</jvmArguments>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
@@ -114,8 +193,8 @@
 						</exclusion>
 					</exclusions>
 				</dependency>
-
 			</dependencies>
+
 			<build>
 				<plugins>
 					<plugin>

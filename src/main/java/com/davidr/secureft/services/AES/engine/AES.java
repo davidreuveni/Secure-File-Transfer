@@ -181,7 +181,25 @@ public class AES {
     }
 
     public static byte[] blockRun(boolean mode, byte[] s, KeySchedule ks, int off) {
+        if (AESWC.isAvailable()) {
+            return AESWC.ccrypt(mode, s, ks, off);           
+        }
         return mode ? cryptBlock(s, ks, off) : decryptBlock(s, ks, off);
+    }
+
+    public static void blocksRun(boolean mode, byte[] s, KeySchedule ks, int offset, int len) {
+        if (AESWC.isAvailable()) {
+            AESWC.ccryptBlocks(mode, s, ks, offset, len);
+            return;
+        }
+
+        for (int off = offset; off < offset + len; off += BLOCK_LENGTH) {
+            if (mode) {
+                cryptBlock(s, ks, off);
+            } else {
+                decryptBlock(s, ks, off);
+            }
+        }
     }
 
     public static byte[] blockRun(boolean mode, byte[] s, KeySchedule ks) {

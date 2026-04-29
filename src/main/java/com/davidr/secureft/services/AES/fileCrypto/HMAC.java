@@ -72,11 +72,11 @@ public final class HMAC {
         // 1) write fields
         encOut.write(fields);
 
-        // 2) stream ciphertext while updating MAC.
-        // Do not close macOut here: closing FilterOutputStream would close encOut too early.
-        OutputStream macOut = new MacOutputStream(encOut, mac);
-        FileECB.encryptIStoOS(plainIn, macOut, dk.ks);
-        macOut.flush();
+        // 2) stream ciphertext while updating MAC
+        try (OutputStream macOut = new BufferedOutputStream(new MacOutputStream(encOut, mac), BUF)) {
+            FileECB.encryptIStoOS(plainIn, macOut, dk.ks);
+            macOut.flush();
+        }
 
         // 3) finalize + write tag at end
         byte[] tag = mac.doFinal();
