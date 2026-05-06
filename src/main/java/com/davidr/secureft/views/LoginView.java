@@ -6,14 +6,12 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @Route(value = "login", layout = AppNavBarLayout.class)
 @AnonymousAllowed
-public class LoginView extends VerticalLayout implements BeforeEnterObserver {
+public class LoginView extends VerticalLayout{
 
     private final LoginForm login = new LoginForm();
     private final Button googleLogin = createGoogleLoginButton();
@@ -55,8 +53,4 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         return googleLogin;
     }
 
-    @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        login.setError(event.getLocation().getQueryParameters().getParameters().containsKey("error"));
-    }
 }

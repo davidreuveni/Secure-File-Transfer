@@ -127,4 +127,5 @@ JNIEXPORT void JNICALL Java_com_davidr_secureft_services_AES_engine_AESWC_decryp
     (*env)->ReleaseByteArrayElements(env, inArr, data, 0);
     (*env)->ReleaseByteArrayElements(env, keyArr, key, JNI_ABORT);
 }
-// gcc -shared -O3 -maes -msse2 -I"$env:JAVA_HOME\include" -I"$env:JAVA_HOME\include\win32" -o aesni.dll src\main\c\aesni.c
+// Windows: gcc -shared -O3 -maes -msse2 -I"%JAVA_HOME%\include" -I"%JAVA_HOME%\include\win32" -o aesni.dll src\main\c\aesni.c
+// Linux:   gcc -shared -fPIC -O3 -maes -msse2 -I"$JAVA_HOME/include" -I"$JAVA_HOME/include/linux" -o libaesni.so src/main/c/aesni.c
