@@ -9,6 +9,8 @@ import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.UI;
@@ -31,8 +33,7 @@ public class AppNavBarLayout extends AppLayout {
         navbarPanel.setSpacing(true);
         navbarPanel.setAlignItems(Alignment.CENTER);
 
-        RouterLink title = new RouterLink("Secure File Transfer", UploadView.class);
-        title.addClassName("app-navbar-title");
+        RouterLink title = createBrandLink();
 
         User loggedUser = securityService.getCurrentUser();
 
@@ -41,8 +42,9 @@ public class AppNavBarLayout extends AppLayout {
         links.setSpacing(true);
         links.setPadding(false);
         links.setAlignItems(Alignment.CENTER);
+        links.add(new RouterLink("Welcome", WelcomeView.class));
         links.add(new RouterLink("Upload", UploadView.class));
-        links.add(new Anchor("/book", "Book"));
+        // links.add(new Anchor("/book", "Book"));
         if (loggedUser == null) {
             links.add(new RouterLink("Login", LoginView.class));
             links.add(new RouterLink("Sign Up", SignInView.class));
@@ -77,6 +79,27 @@ public class AppNavBarLayout extends AppLayout {
         navbarPanel.add(avatarButton);
         addToNavbar(navbarPanel);
         addToNavbar(avatarMenu);
+    }
+
+    private RouterLink createBrandLink() {
+        RouterLink title = new RouterLink();
+        title.setRoute(WelcomeView.class);
+        title.addClassName("app-navbar-title");
+
+        Icon mark = new Icon(VaadinIcon.SHIELD);
+        mark.addClassName("app-navbar-brand-mark");
+
+        Span main = new Span("SecureFT");
+        main.addClassName("app-navbar-brand-main");
+
+        Span subtitle = new Span("File Transfer");
+        subtitle.addClassName("app-navbar-brand-subtitle");
+
+        Div wordmark = new Div(main, subtitle);
+        wordmark.addClassName("app-navbar-brand-wordmark");
+
+        title.add(mark, wordmark);
+        return title;
     }
 
     private ContextMenu createAvatarMenu(Div avatarButton, User loggedUser) {

@@ -167,14 +167,63 @@ vaadin-app-layout::part(navbar) {
 }
 
 .app-navbar-title {
-    margin: 0;
     display: inline-flex;
     align-items: center;
-    color: var(--lumo-header-text-color);
-    font-size: 1.2rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
+    gap: 0.7rem;
+    min-height: 3rem;
+    margin: 0;
+    padding: 0.35rem 0.65rem 0.35rem 0.4rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: inherit;
     text-decoration: none;
+    transition: background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+
+.app-navbar-title:hover {
+    background: hsla(0, 0%, 100%, 0.62);
+    border-color: var(--lumo-contrast-10pct);
+    box-shadow: var(--lumo-box-shadow-xs);
+    transform: translateY(-1px);
+}
+
+.app-navbar-brand-mark {
+    box-sizing: border-box;
+    width: 2.35rem;
+    height: 2.35rem;
+    padding: 0.48rem;
+    flex: 0 0 auto;
+    border-radius: 8px;
+    color: white;
+    background:
+        linear-gradient(135deg, hsl(197, 92%, 42%), hsl(161, 72%, 34%) 58%, hsl(43, 90%, 54%));
+    box-shadow:
+        inset 0 1px 0 hsla(0, 0%, 100%, 0.38),
+        0 0.65rem 1.35rem hsla(194, 78%, 30%, 0.28);
+}
+
+.app-navbar-brand-wordmark {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    line-height: 1.05;
+}
+
+.app-navbar-brand-main {
+    color: var(--lumo-header-text-color);
+    font-size: 1.22rem;
+    font-weight: 850;
+    letter-spacing: 0;
+}
+
+.app-navbar-brand-subtitle {
+    margin-top: 0.18rem;
+    color: var(--lumo-tertiary-text-color);
+    font-size: 0.72rem;
+    font-weight: 750;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .app-navbar-links {
@@ -236,6 +285,44 @@ vaadin-app-layout::part(navbar) {
     box-shadow: 0 0 0 2px var(--lumo-primary-color-50pct);
 }
 
+html[theme~="dark"] .app-navbar-title:hover,
+body[theme~="dark"] .app-navbar-title:hover {
+    background: hsla(220, 18%, 26%, 0.72);
+}
+
+html[theme~="dark"] .app-navbar-brand-mark,
+body[theme~="dark"] .app-navbar-brand-mark {
+    box-shadow:
+        inset 0 1px 0 hsla(0, 0%, 100%, 0.24),
+        0 0.65rem 1.35rem hsla(194, 84%, 18%, 0.36);
+}
+
+@media (max-width: 620px) {
+    .app-navbar {
+        gap: 0.55rem;
+        padding: 0.75rem 0.85rem;
+    }
+
+    .app-navbar-title {
+        gap: 0.5rem;
+        padding-right: 0.45rem;
+    }
+
+    .app-navbar-brand-mark {
+        width: 2.1rem;
+        height: 2.1rem;
+        padding: 0.43rem;
+    }
+
+    .app-navbar-brand-main {
+        font-size: 1.05rem;
+    }
+
+    .app-navbar-brand-subtitle {
+        display: none;
+    }
+}
+
 .upload-form-column {
     gap: 0.85rem;
 }
@@ -250,4 +337,483 @@ vaadin-app-layout::part(navbar) {
     border-radius: var(--lumo-border-radius-l);
     box-shadow: var(--lumo-box-shadow-s);
     line-height: 1.65;
+}
+
+.welcome-page {
+    min-height: calc(100vh - 4.5rem);
+    background:
+        linear-gradient(135deg, hsla(195, 86%, 46%, 0.12), transparent 34rem),
+        linear-gradient(180deg, hsla(0, 0%, 100%, 0.28), hsla(154, 42%, 55%, 0.08));
+}
+
+.welcome-hero {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: minmax(20rem, 0.9fr) minmax(22rem, 1.1fr);
+    gap: 2rem;
+    align-items: center;
+    width: 100%;
+    max-width: 78rem;
+    min-height: calc(100vh - 10rem);
+    margin: 0 auto;
+    padding: 3rem 1.5rem 2rem;
+}
+
+.welcome-hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.15rem;
+}
+
+.welcome-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2rem;
+    padding: 0.25rem 0.7rem;
+    border: 1px solid hsla(174, 72%, 28%, 0.24);
+    border-radius: 999px;
+    background: hsla(174, 72%, 42%, 0.12);
+    color: hsl(174, 80%, 24%);
+    font-size: 0.86rem;
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+.welcome-title {
+    max-width: 45rem;
+    margin: 0;
+    color: var(--lumo-header-text-color);
+    font-size: 3.45rem;
+    line-height: 1.02;
+    letter-spacing: 0;
+}
+
+.welcome-subtitle {
+    max-width: 40rem;
+    margin: 0;
+    color: var(--lumo-secondary-text-color);
+    font-size: 1.18rem;
+    line-height: 1.6;
+}
+
+.welcome-actions {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.2rem;
+}
+
+.welcome-actions vaadin-button {
+    min-width: 10rem;
+    min-height: 2.8rem;
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+.welcome-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(8.5rem, 1fr));
+    gap: 0.75rem;
+    width: 100%;
+    margin-top: 1.1rem;
+}
+
+.welcome-stat {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-height: 5.4rem;
+    padding: 0.9rem;
+    border: 1px solid var(--lumo-contrast-10pct);
+    border-radius: 8px;
+    background: hsla(0, 0%, 100%, 0.65);
+    box-shadow: var(--lumo-box-shadow-xs);
+}
+
+.welcome-stat-value {
+    color: hsl(202, 86%, 32%);
+    font-weight: 800;
+    letter-spacing: 0;
+}
+
+.welcome-stat-label {
+    color: var(--lumo-tertiary-text-color);
+    font-size: 0.9rem;
+    line-height: 1.35;
+}
+
+.welcome-visual {
+    position: relative;
+    min-height: 34rem;
+    overflow: hidden;
+    border: 1px solid var(--lumo-contrast-10pct);
+    border-radius: 8px;
+    background: hsl(208, 38%, 94%);
+    box-shadow: var(--lumo-box-shadow-l);
+}
+
+.welcome-visual-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 34rem;
+    object-fit: cover;
+}
+
+.welcome-preview {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding: 0.95rem;
+    border: 1px solid hsla(0, 0%, 100%, 0.58);
+    border-radius: 8px;
+    background: hsla(212, 28%, 98%, 0.9);
+    box-shadow: 0 1rem 2.5rem hsla(216, 42%, 16%, 0.2);
+    backdrop-filter: blur(16px);
+}
+
+.welcome-mode-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.45rem;
+    width: 100%;
+}
+
+vaadin-button.welcome-mode-button {
+    width: 100%;
+    min-width: 0;
+    min-height: 2.35rem;
+    border-radius: 8px;
+    color: var(--lumo-secondary-text-color);
+    font-weight: 700;
+}
+
+vaadin-button.welcome-mode-button.selected {
+    color: white;
+    background: linear-gradient(135deg, hsl(201, 90%, 39%), hsl(166, 72%, 33%));
+}
+
+.welcome-preview-title {
+    margin: 0;
+    color: hsl(214, 34%, 14%);
+    font-size: 1.28rem;
+    line-height: 1.25;
+    letter-spacing: 0;
+}
+
+.welcome-preview-text {
+    margin: 0;
+    color: hsl(215, 18%, 34%);
+    line-height: 1.5;
+}
+
+.welcome-preview-metric {
+    display: inline-flex;
+    width: fit-content;
+    min-height: 1.8rem;
+    align-items: center;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    background: hsla(43, 94%, 54%, 0.18);
+    color: hsl(36, 88%, 28%);
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: 0;
+}
+
+.welcome-flow-section {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 78rem;
+    margin: 0 auto;
+    padding: 0 1.5rem 3rem;
+}
+
+.welcome-section-heading {
+    margin: 0 0 1rem;
+    color: var(--lumo-header-text-color);
+    font-size: 1.7rem;
+    line-height: 1.2;
+    letter-spacing: 0;
+}
+
+.welcome-flow-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.85rem;
+}
+
+.welcome-step {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    min-height: 11rem;
+    padding: 1rem;
+    border: 1px solid var(--lumo-contrast-10pct);
+    border-radius: 8px;
+    background: var(--app-panel-background);
+    box-shadow: var(--lumo-box-shadow-s);
+}
+
+.welcome-step-icon {
+    width: 2rem;
+    height: 2rem;
+    padding: 0.45rem;
+    border-radius: 8px;
+    color: hsl(171, 78%, 28%);
+    background: hsla(171, 74%, 38%, 0.12);
+}
+
+.welcome-step-title {
+    color: var(--lumo-header-text-color);
+    font-weight: 800;
+    letter-spacing: 0;
+}
+
+.welcome-step-text {
+    margin: 0;
+    color: var(--lumo-secondary-text-color);
+    line-height: 1.45;
+}
+
+html[theme~="dark"] .welcome-page,
+body[theme~="dark"] .welcome-page {
+    background:
+        linear-gradient(135deg, hsla(195, 86%, 50%, 0.1), transparent 34rem),
+        linear-gradient(180deg, hsla(219, 22%, 14%, 0.35), hsla(154, 34%, 16%, 0.12));
+}
+
+html[theme~="dark"] .welcome-eyebrow,
+body[theme~="dark"] .welcome-eyebrow {
+    border-color: hsla(174, 76%, 62%, 0.22);
+    background: hsla(174, 72%, 44%, 0.12);
+    color: hsl(174, 84%, 72%);
+}
+
+html[theme~="dark"] .welcome-stat,
+body[theme~="dark"] .welcome-stat {
+    background: hsla(220, 18%, 15%, 0.72);
+}
+
+html[theme~="dark"] .welcome-stat-value,
+body[theme~="dark"] .welcome-stat-value {
+    color: hsl(190, 90%, 68%);
+}
+
+html[theme~="dark"] .welcome-visual,
+body[theme~="dark"] .welcome-visual {
+    background: hsl(220, 20%, 13%);
+}
+
+html[theme~="dark"] .welcome-preview,
+body[theme~="dark"] .welcome-preview {
+    border-color: hsla(220, 20%, 96%, 0.16);
+    background: hsla(220, 18%, 13%, 0.88);
+    box-shadow: 0 1rem 2.5rem hsla(220, 50%, 2%, 0.34);
+}
+
+html[theme~="dark"] .welcome-preview-title,
+body[theme~="dark"] .welcome-preview-title {
+    color: var(--lumo-header-text-color);
+}
+
+html[theme~="dark"] .welcome-preview-text,
+body[theme~="dark"] .welcome-preview-text {
+    color: var(--lumo-secondary-text-color);
+}
+
+html[theme~="dark"] .welcome-preview-metric,
+body[theme~="dark"] .welcome-preview-metric {
+    background: hsla(43, 90%, 60%, 0.16);
+    color: hsl(43, 96%, 72%);
+}
+
+@media (max-width: 920px) {
+    .welcome-hero {
+        grid-template-columns: 1fr;
+        min-height: 0;
+        padding-top: 2rem;
+    }
+
+    .welcome-title {
+        font-size: 2.55rem;
+    }
+
+    .welcome-visual,
+    .welcome-visual-image {
+        min-height: 26rem;
+    }
+
+    .welcome-flow-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 620px) {
+    .welcome-page {
+        min-height: 0;
+    }
+
+    .welcome-hero {
+        gap: 1rem;
+        padding: 1rem 0.85rem 1.25rem;
+    }
+
+    .welcome-hero-content {
+        gap: 0.85rem;
+    }
+
+    .welcome-eyebrow {
+        min-height: 1.75rem;
+        padding: 0.15rem 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    .welcome-title {
+        font-size: 2rem;
+        line-height: 1.08;
+    }
+
+    .welcome-subtitle {
+        font-size: 1rem;
+        line-height: 1.48;
+    }
+
+    .welcome-actions {
+        width: 100%;
+        gap: 0.55rem;
+    }
+
+    .welcome-actions vaadin-button {
+        width: 100%;
+        min-height: 2.65rem;
+    }
+
+    .welcome-stats,
+    .welcome-flow-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .welcome-stats {
+        gap: 0.55rem;
+        margin-top: 0.35rem;
+    }
+
+    .welcome-stat {
+        min-height: 0;
+        padding: 0.75rem 0.85rem;
+    }
+
+    .welcome-visual {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: visible;
+    }
+
+    .welcome-visual-image {
+        height: auto;
+        min-height: 0;
+        aspect-ratio: 16 / 10;
+        object-fit: cover;
+    }
+
+    .welcome-preview {
+        position: static;
+        margin: 0.65rem;
+        padding: 0.75rem;
+        gap: 0.65rem;
+        box-shadow: var(--lumo-box-shadow-xs);
+    }
+
+    .welcome-mode-tabs {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.35rem;
+    }
+
+    vaadin-button.welcome-mode-button {
+        min-height: 2.2rem;
+        font-size: 0.82rem;
+    }
+
+    .welcome-preview-title {
+        font-size: 1.08rem;
+    }
+
+    .welcome-preview-text {
+        font-size: 0.94rem;
+        line-height: 1.4;
+    }
+
+    .welcome-preview-metric {
+        min-height: 1.65rem;
+        font-size: 0.82rem;
+    }
+
+    .welcome-flow-section {
+        padding: 0 0.85rem 2rem;
+    }
+
+    .welcome-section-heading {
+        font-size: 1.35rem;
+    }
+
+    .welcome-step {
+        min-height: 0;
+        padding: 0.85rem;
+    }
+}
+
+.access-denied-page {
+    box-sizing: border-box;
+    min-height: calc(100vh - 4.5rem);
+    text-align: center;
+    background:
+        linear-gradient(135deg, hsla(3, 72%, 50%, 0.1), transparent 28rem),
+        linear-gradient(180deg, hsla(0, 0%, 100%, 0.2), hsla(204, 80%, 44%, 0.08));
+}
+
+.access-denied-icon {
+    width: 3.25rem;
+    height: 3.25rem;
+    padding: 0.8rem;
+    border-radius: 8px;
+    color: hsl(3, 72%, 44%);
+    background: var(--lumo-error-color-10pct);
+}
+
+.access-denied-title {
+    margin: 0;
+    color: var(--lumo-header-text-color);
+    font-size: 2.35rem;
+    line-height: 1.1;
+    letter-spacing: 0;
+}
+
+.access-denied-message {
+    max-width: 34rem;
+    margin: 0;
+    color: var(--lumo-secondary-text-color);
+    font-size: 1.05rem;
+    line-height: 1.6;
+}
+
+.access-denied-actions {
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 0.5rem;
+}
+
+.access-denied-actions vaadin-button {
+    min-width: 10rem;
+    min-height: 2.7rem;
+    border-radius: 8px;
+    font-weight: 700;
 }

@@ -28,7 +28,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import jakarta.annotation.security.PermitAll;
 
-@Route(value = "", layout = AppNavBarLayout.class)
+@Route(value = "upload", layout = AppNavBarLayout.class)
 @PermitAll
 @PageTitle("Encrypt and Download")
 @SuppressWarnings("removal")

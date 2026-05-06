@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="brand-mark" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="hsl(197, 92%, 42%)"/>
+      <stop offset="0.58" stop-color="hsl(161, 72%, 34%)"/>
+      <stop offset="1" stop-color="hsl(43, 90%, 54%)"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#brand-mark)"/>
+  <path fill="#fff" d="M14.5 10c0 0 0 8.8 0 19.3C14.5 44.7 32 54 32 54s17.5-9.4 17.5-24.8C49.5 18.8 49.5 10 49.5 10h-35ZM47 29.3C47 40.8 36.3 48.8 32 51V12.8h15v16.5Z"/>
+</svg>

@@ -12,7 +12,7 @@ window.secureftRtc = {
 
     window.secureftRtcFile.initFileState(this);
 
-    this.ws = new WebSocket("ws://localhost:8080/signal");
+    this.ws = this.createSignalingSocket();
 
     this.ws.onopen = () => {
       this.ws.send(JSON.stringify({
@@ -180,6 +180,12 @@ window.secureftRtc = {
     };
 
     this.host.$server.updateStatus("Ready to connect", false);
+  },
+
+  createSignalingSocket() {
+    const signalingUrl = new URL("signal", document.baseURI || window.location.href);
+    signalingUrl.protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    return new WebSocket(signalingUrl);
   },
 
   async createPeerConnection(isCaller) {
